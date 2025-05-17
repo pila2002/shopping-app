@@ -1,50 +1,75 @@
-# Welcome to your Expo app 👋
+Sure! Here's a concise **functional requirements document** for your "Shopping List" app. You can pass this to another LLM or use it as context in documentation, planning, or development prompts:
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+---
 
-## Get started
+# 📝 Functional Requirements: Shopping List App (React Native + Expo)
 
-1. Install dependencies
+## 1. **Overview**
 
-   ```bash
-   npm install
-   ```
+A mobile application built with **React Native** using **Expo**, that allows users to manage a shopping list. The app supports manual product entry as well as barcode scanning. Data is stored locally using **SQLite**. The app is styled using **Material Design 3** principles.
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## 2. **Core Functional Requirements**
 
-In the output, you'll find options to open the app in a
+### 2.1. Shopping List Management
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+* View a list of products to buy
+* Add new product manually
+* Add new product by scanning a barcode
+* Mark product as purchased (checkbox)
+* Delete product from the list
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### 2.2. Data Persistence
 
-## Get a fresh project
+* Store all items locally using **SQLite**
+* Automatically create database table on first launch
+* Persist checked/unchecked state of items across sessions
 
-When you're ready, run:
+### 2.3. Barcode Scanning
 
-```bash
-npm run reset-project
-```
+* Use device camera to scan product barcodes
+* Fill product name automatically using scanned barcode (or placeholder like "Product {code}")
+* Request and handle camera permissions gracefully
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2.4. User Interface
 
-## Learn more
+* Use components styled with **Material Design 3**
+* Ensure mobile-friendly layout with:
 
-To learn more about developing your project with Expo, look at the following resources:
+  * List view
+  * Add form with input and button(s)
+  * Consistent buttons and colors
+* Use `react-native-paper` or equivalent library
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+---
 
-## Join the community
+## 3. **Navigation**
 
-Join our community of developers creating universal apps.
+* Use expo navigation with stack navigation
+* Screens:
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+  * `ShoppingListScreen`: default screen, list of products
+  * `AddItemScreen`: form and barcode scanner access
+
+---
+
+## 4. **Non-Functional Requirements**
+
+* Should work fully offline (all logic and storage local)
+* Compatible with Android (target device)
+* Code written in JavaScript (React Native with Expo)
+* Responsive performance for small data sets
+* Use modern React features (e.g. hooks)
+
+---
+
+## 5. **Libraries & Tools**
+`
+* Expo CLI
+* `expo-sqlite`
+* `expo-barcode-scanner`
+* `react-native-paper`
+* `@react-navigation/native` & stack navigator
+
+---
