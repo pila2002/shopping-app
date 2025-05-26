@@ -14,62 +14,65 @@ A mobile application built with **React Native** using **Expo**, that allows use
 
 ### 2.1. Shopping List Management
 
-* View a list of products to buy
-* Add new product manually
-* Add new product by scanning a barcode
-* Mark product as purchased (checkbox)
-* Delete product from the list
+- View a list of products to buy
+- Add new product manually
+- Add new product by scanning a barcode
+- Mark product as purchased (checkbox)
+- Delete product from the list
 
 ### 2.2. Data Persistence
 
-* Store all items locally using **SQLite**
-* Automatically create database table on first launch
-* Persist checked/unchecked state of items across sessions
+- Store all items locally using **SQLite**
+- Automatically create database table on first launch
+- Persist checked/unchecked state of items across sessions
 
 ### 2.3. Barcode Scanning
 
-* Use device camera to scan product barcodes
-* Fill product name automatically using scanned barcode (or placeholder like "Product {code}")
-* Request and handle camera permissions gracefully
+- Use device camera to scan product barcodes
+- Fill product name automatically using scanned barcode (or placeholder like "Product {code}")
+- Request and handle camera permissions gracefully
 
 ### 2.4. User Interface
 
-* Use components styled with **Material Design 3**
-* Ensure mobile-friendly layout with:
+- Use components styled with **Material Design 3**
+- Ensure mobile-friendly layout with:
 
-  * List view
-  * Add form with input and button(s)
-  * Consistent buttons and colors
-* Use `react-native-paper` or equivalent library
+    - List view
+    - Add form with input and button(s)
+    - Consistent buttons and colors
+
+- Use `react-native-paper` or equivalent library
 
 ---
 
 ## 3. **Navigation**
 
-* Use expo navigation with stack navigation
-* Screens:
+- Use expo navigation with stack navigation
+- Screens:
 
-  * `ShoppingListScreen`: default screen, list of products
-  * `AddItemScreen`: form and barcode scanner access
+    - `ShoppingListScreen`: default screen, list of products
+    - `AddItemScreen`: form and barcode scanner access
 
 ---
 
 ## 4. **Non-Functional Requirements**
 
-* Should work fully offline (all logic and storage local)
-* Compatible with Android (target device)
-* Code written in JavaScript (React Native with Expo)
-* Responsive performance for small data sets
-* Use modern React features (e.g. hooks)
+- Should work fully offline (all logic and storage local)
+- Compatible with Android (target device)
+- Code written in JavaScript (React Native with Expo)
+- Responsive performance for small data sets
+- Use modern React features (e.g. hooks)
 
 ---
 
 ## 5. **Libraries & Tools**
+
 `
-* Expo CLI
-* `expo-sqlite`
-* `expo-barcode-scanner`
-* `react-native-paper`
-* `@react-navigation/native` & stack navigator
+
+- Expo CLI
+- `expo-sqlite`
+- `expo-barcode-scanner`
+- `react-native-paper`
+- `@react-navigation/native` & stack navigator
 
 ---
