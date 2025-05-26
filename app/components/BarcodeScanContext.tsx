@@ -5,47 +5,42 @@ import React, { createContext, useContext, useRef } from 'react';
 export type BarcodeScanCallback = (code: string) => void;
 
 interface BarcodeScanContextType {
-  startScan: (callback: BarcodeScanCallback) => void;
+    startScan: (callback: BarcodeScanCallback) => void;
+    onScanned: BarcodeScanCallback;
 }
 
 const BarcodeScanContext = createContext<BarcodeScanContextType | undefined>(undefined);
 
-interface BarcodeScanProviderProps {
-  children: React.ReactElement<{
-    onBarcodeScanned?: (code: string) => void;
-  }>;
-}
+export const BarcodeScanProvider = ({ children }: { children: React.ReactNode }) => {
+    const callbackRef = useRef<BarcodeScanCallback | null>(null);
 
-export const BarcodeScanProvider: React.FC<BarcodeScanProviderProps> = ({ children }) => {
-  const callbackRef = useRef<BarcodeScanCallback | null>(null);
+    const startScan = (callback: BarcodeScanCallback) => {
+        callbackRef.current = callback;
+        router.push('/scan');
+    };
 
-  const startScan = (callback: BarcodeScanCallback) => {
-    callbackRef.current = callback;
-    router.push('/scan');
-  };
+    // Funkcja do wywołania po zeskanowaniu kodu
+    const onScanned = (code: string) => {
+        console.log('onScanned', code);
+        if (callbackRef.current) {
+            callbackRef.current(code);
+            callbackRef.current = null;
+        }
+    };
 
-  // Funkcja do wywołania po zeskanowaniu kodu
-  const onScanned = (code: string) => {
-    if (callbackRef.current) {
-      callbackRef.current(code);
-      callbackRef.current = null;
-    }
-  };
-
-  return (
-    <BarcodeScanContext.Provider value={{ startScan }}>
-      {/* Przekazujemy funkcję onScanned przez globalny obiekt */}
-      {React.cloneElement(children, { onBarcodeScanned: onScanned })}
-    </BarcodeScanContext.Provider>
-  );
+    return (
+        <BarcodeScanContext.Provider value={{ startScan, onScanned }}>
+            {children}
+        </BarcodeScanContext.Provider>
+    );
 };
 
 export const useBarcodeScan = () => {
-  const context = useContext(BarcodeScanContext);
-  if (!context) {
-    throw new Error('useBarcodeScan must be used within a BarcodeScanProvider');
-  }
-  return context;
+    const context = useContext(BarcodeScanContext);
+    if (!context) {
+        throw new Error('useBarcodeScan must be used within a BarcodeScanProvider');
+    }
+    return context;
 };
 
-export default BarcodeScanContext; 
+export default BarcodeScanContext;
