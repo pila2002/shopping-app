@@ -60,7 +60,7 @@ export const addShoppingList = async (
   return {
     id: result.lastInsertRowId,
     name,
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toLocaleString('pl-PL', { hour12: false, timeZone: 'Europe/Warsaw' })
   };
 };
 
