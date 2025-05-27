@@ -4,16 +4,15 @@ import { MD3LightTheme, PaperProvider } from 'react-native-paper';
 import { BarcodeScanProvider } from './components/BarcodeScanContext';
 import DatabaseInitializer from './components/DatabaseInitializer';
 
-const theme = {
-  ...MD3LightTheme,
-  colors: {
-    ...MD3LightTheme.colors,
-    primary: '#6200ee',
-    secondary: '#03dac6',
-  },
-};
-
 export default function Layout() {
+    const theme = {
+      ...MD3LightTheme,
+      colors: {
+        ...MD3LightTheme.colors,
+        primary: '#6200ee',
+        secondary: '#03dac6',
+      },
+    };
     return (
         <PaperProvider theme={theme}>
             <SQLiteProvider databaseName="shopping_list.db">

@@ -7,20 +7,25 @@ export type BarcodeScanCallback = (code: string) => void;
 interface BarcodeScanContextType {
     startScan: (callback: BarcodeScanCallback) => void;
     onScanned: BarcodeScanCallback;
+    resetScan: () => void;
 }
 
 const BarcodeScanContext = createContext<BarcodeScanContextType | undefined>(undefined);
 
 export const BarcodeScanProvider = ({ children }: { children: React.ReactNode }) => {
     const callbackRef = useRef<BarcodeScanCallback | null>(null);
+    const scanLocked = useRef(false);
 
     const startScan = (callback: BarcodeScanCallback) => {
         callbackRef.current = callback;
+        scanLocked.current = false;
         router.push('/scan');
     };
 
     // Funkcja do wywołania po zeskanowaniu kodu
     const onScanned = (code: string) => {
+        if (scanLocked.current) return;
+        scanLocked.current = true;
         console.log('onScanned', code);
         if (callbackRef.current) {
             callbackRef.current(code);
@@ -28,8 +33,12 @@ export const BarcodeScanProvider = ({ children }: { children: React.ReactNode })
         }
     };
 
+    const resetScan = () => {
+        scanLocked.current = false;
+    };
+
     return (
-        <BarcodeScanContext.Provider value={{ startScan, onScanned }}>
+        <BarcodeScanContext.Provider value={{ startScan, onScanned, resetScan }}>
             {children}
         </BarcodeScanContext.Provider>
     );

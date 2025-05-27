@@ -1,9 +1,10 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import React, { useEffect, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
-import { Appbar, Button, Menu, TextInput, useTheme } from 'react-native-paper';
+import { Alert, Keyboard, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Appbar, Button, List, Modal, Portal, Text, TextInput, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { fetchProductByBarcode } from '../../../lib/api/dietagram';
 import { ShoppingItem, addShoppingItemToList } from '../../../lib/db/database';
 
 const CATEGORIES = [
@@ -31,6 +32,7 @@ function AddProductContent() {
   const theme = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const listId = Number(id);
+  console.log('AddProductContent id:', id, 'listId:', listId);
   const router = useRouter();
   const searchParams = useLocalSearchParams();
   const [name, setName] = useState('');
@@ -39,6 +41,10 @@ function AddProductContent() {
   const [category, setCategory] = useState('');
   const [barcode, setBarcode] = useState('');
   const [menuVisible, setMenuVisible] = useState(false);
+  const [isWeightMode, setIsWeightMode] = useState(false);
+  const [loadingProduct, setLoadingProduct] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [categoryModalVisible, setCategoryModalVisible] = useState(false);
 
   useEffect(() => {
     if (searchParams?.barcode) {
@@ -48,7 +54,23 @@ function AddProductContent() {
 
   useEffect(() => {
     if (barcode) {
-      setName(`Produkt ${barcode}`);
+      setLoadingProduct(true);
+      setApiError(null);
+      fetchProductByBarcode(barcode)
+        .then(product => {
+          setName(product.name);
+          setCategory('');
+          setCategoryModalVisible(false);
+          Keyboard.dismiss();
+        })
+        .catch(() => {
+          setName(`Produkt ${barcode}`);
+          setApiError('Nie znaleziono produktu w bazie lub błąd API.');
+          setCategory('');
+          setCategoryModalVisible(false);
+          Keyboard.dismiss();
+        })
+        .finally(() => setLoadingProduct(false));
     }
   }, [barcode]);
 
@@ -57,15 +79,24 @@ function AddProductContent() {
       Alert.alert('Błąd', 'Nazwa produktu jest wymagana');
       return;
     }
+    if (!category.trim()) {
+      Alert.alert('Błąd', 'Wybierz kategorię produktu');
+      return;
+    }
+    if (isNaN(listId)) {
+      Alert.alert('Błąd', 'Brak poprawnego ID listy. Nie można dodać produktu.');
+      return;
+    }
     const newItem: Omit<ShoppingItem, 'id' | 'createdAt'> = {
       name: name.trim(),
       isCompleted: false,
-      quantity: parseInt(quantity) || 1,
-      weight: weight ? parseFloat(weight) : undefined,
-      category: category.trim() || undefined,
+      quantity: isWeightMode ? 1 : (parseInt(quantity) || 1),
+      weight: isWeightMode ? parseFloat(weight) : undefined,
+      category: category.trim(),
       barcode: barcode.trim() || undefined
     };
     try {
+      console.log('Dodaję produkt:', newItem, 'do listy:', listId);
       await addShoppingItemToList(db, newItem, listId);
       router.back();
     } catch (error) {
@@ -80,7 +111,16 @@ function AddProductContent() {
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title="Dodaj produkt" titleStyle={{ fontWeight: 'bold' }} />
       </Appbar.Header>
-      <ScrollView style={styles.formContainer} contentContainerStyle={styles.formScroll}>
+      <ScrollView style={styles.formContainer} contentContainerStyle={styles.formScroll} keyboardShouldPersistTaps="handled">
+        {loadingProduct && (
+          <View style={{ alignItems: 'center', marginVertical: 8 }}>
+            <ActivityIndicator animating size="small" color={theme.colors.primary} />
+            <Text style={{ color: theme.colors.primary, marginTop: 4 }}>Pobieranie danych z API...</Text>
+          </View>
+        )}
+        {apiError && (
+          <Text style={{ color: theme.colors.error, marginBottom: 8 }}>{apiError}</Text>
+        )}
         <TextInput
           label="Nazwa produktu"
           value={name}
@@ -88,47 +128,84 @@ function AddProductContent() {
           mode="outlined"
           style={styles.input}
         />
-        <TextInput
-          label="Ilość"
-          value={quantity}
-          onChangeText={setQuantity}
-          mode="outlined"
-          keyboardType="numeric"
-          style={styles.input}
-        />
-        <TextInput
-          label="Waga"
-          value={weight}
-          onChangeText={setWeight}
-          mode="outlined"
-          keyboardType="numeric"
-          style={styles.input}
-        />
-        <Menu
-          visible={menuVisible}
-          onDismiss={() => setMenuVisible(false)}
-          anchor={
-            <TextInput
-              label="Kategoria"
-              value={category}
-              onPressIn={() => setMenuVisible(true)}
-              mode="outlined"
-              style={styles.input}
-              right={<TextInput.Icon icon="menu-down" />}
-            />
-          }
-        >
-          {CATEGORIES.map((cat) => (
-            <Menu.Item
-              key={cat}
-              onPress={() => {
-                setCategory(cat);
-                setMenuVisible(false);
+        <View style={styles.measurementToggle}>
+          <Button
+            mode={!isWeightMode ? "contained" : "outlined"}
+            onPress={() => setIsWeightMode(false)}
+            style={styles.toggleButton}
+            buttonColor={!isWeightMode ? theme.colors.primary : undefined}
+            textColor={!isWeightMode ? theme.colors.onPrimary : theme.colors.primary}
+          >
+            Sztuki
+          </Button>
+          <Button
+            mode={isWeightMode ? "contained" : "outlined"}
+            onPress={() => setIsWeightMode(true)}
+            style={styles.toggleButton}
+            buttonColor={isWeightMode ? theme.colors.primary : undefined}
+            textColor={isWeightMode ? theme.colors.onPrimary : theme.colors.primary}
+          >
+            Kilogramy
+          </Button>
+        </View>
+        {isWeightMode ? (
+          <TextInput
+            label="Waga (kg)"
+            value={weight}
+            onChangeText={setWeight}
+            mode="outlined"
+            keyboardType="numeric"
+            style={styles.input}
+          />
+        ) : (
+          <TextInput
+            label="Ilość (szt.)"
+            value={quantity}
+            onChangeText={setQuantity}
+            mode="outlined"
+            keyboardType="numeric"
+            style={styles.input}
+          />
+        )}
+        {/* Kategoria */}
+        <View style={{ marginBottom: 16 }}>
+          <Text style={{ marginBottom: 4, color: theme.colors.onBackground }}>Kategoria *</Text>
+          <Button
+            mode="outlined"
+            onPress={() => {
+              Keyboard.dismiss();
+              setCategoryModalVisible(true);
+            }}
+            style={[styles.input, !category && styles.requiredInput]}
+            contentStyle={{ justifyContent: 'flex-start' }}
+            icon="menu-down"
+          >
+            {category || 'Wybierz kategorię...'}
+          </Button>
+          <Portal>
+            <Modal
+              visible={categoryModalVisible}
+              onDismiss={() => setCategoryModalVisible(false)}
+              contentContainerStyle={{
+                backgroundColor: theme.colors.background,
+                margin: 32,
+                borderRadius: 12,
+                padding: 8,
               }}
-              title={cat}
-            />
-          ))}
-        </Menu>
+            >
+              {CATEGORIES.map(cat => (
+                <List.Item
+                  key={cat}
+                  title={cat}
+                  onPress={() => {
+                    setCategory(cat);
+                    setCategoryModalVisible(false);
+                  }}
+                />
+              ))}
+            </Modal>
+          </Portal>
+        </View>
         <TextInput
           label="Kod kreskowy"
           value={barcode}
@@ -136,6 +213,7 @@ function AddProductContent() {
           mode="outlined"
           keyboardType="numeric"
           style={styles.input}
+          editable={!searchParams?.barcode}
         />
       </ScrollView>
       <View style={styles.formButtonsRow}>
@@ -168,6 +246,18 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: 'white',
+  },
+  requiredInput: {
+    borderColor: '#6200ee',
+    borderWidth: 2,
+  },
+  measurementToggle: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  toggleButton: {
+    flex: 1,
+    borderRadius: 8,
   },
   submitButton: {
     borderRadius: 8,

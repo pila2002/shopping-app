@@ -139,7 +139,7 @@ export const getShoppingItemsForList = async (
     category: string | null;
     icon: string | null;
     list_id: number;
-  }>('SELECT * FROM shopping_items WHERE list_id = ? ORDER BY id DESC', [listId]);
+  }>('SELECT * FROM shopping_items WHERE list_id = ? ORDER BY is_completed ASC, category ASC NULLS LAST, name ASC', [listId]);
 
   return items.map((item) => ({
     id: item.id,

@@ -1,5 +1,6 @@
 import { useBarcodeScan } from '@/app/components/BarcodeScanContext';
 import { BarcodeScanningResult, CameraView, useCameraPermissions } from 'expo-camera';
+import { router, useLocalSearchParams } from 'expo-router';
 import React, { useRef } from 'react';
 import { Dimensions, StyleSheet, Vibration, View } from 'react-native';
 import { Button, Text, useTheme } from 'react-native-paper';
@@ -14,15 +15,16 @@ export default function BarcodeScanner() {
 
     const [permission, requestPermission] = useCameraPermissions();
 
-    const { onScanned } = useBarcodeScan();
+    const { onScanned, resetScan } = useBarcodeScan();
+    const { id } = useLocalSearchParams<{ id: string }>();
 
     async function onBarcodeScanned({ data }: BarcodeScanningResult) {
-        if (!scanningEnabled.current) return;
         Vibration.vibrate();
-        scanningEnabled.current = false;
         onScanned(data);
+        console.log('Przekierowanie na:', `/list/${id}/add?barcode=${data}`, 'id:', id);
+        router.replace(`/list/${id}/add?barcode=${data}`);
         setTimeout(() => {
-            scanningEnabled.current = true;
+            resetScan();
         }, 1000);
     }
 

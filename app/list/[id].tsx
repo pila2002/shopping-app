@@ -33,9 +33,7 @@ export default function ShoppingListProductsScreen() {
   };
 
   const handleShowScannerForm = () => {
-    startScan((scannedCode) => {
-      router.push(`/list/${listId}/add?barcode=${scannedCode}`);
-    });
+    router.push(`/scan?id=${listId}`);
   };
 
   const handleToggleCompleted = async (item: ShoppingItem) => {
@@ -61,6 +59,16 @@ export default function ShoppingListProductsScreen() {
     );
   };
 
+  // Group items by category
+  const groupedItems = items.reduce((acc, item) => {
+    const category = item.category || 'Bez kategorii';
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(item);
+    return acc;
+  }, {} as Record<string, ShoppingItem[]>);
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }} edges={['top', 'left', 'right']}>
       <Appbar.Header elevated style={{ backgroundColor: theme.colors.background }}>
@@ -68,45 +76,61 @@ export default function ShoppingListProductsScreen() {
         <Appbar.Content title="Produkty na liście" />
       </Appbar.Header>
       <ScrollView style={styles.container}>
-        {items.map((item) => (
-          <List.Item
-            key={item.id}
-            title={
-              <Text
-                style={[
-                  styles.itemName,
-                  item.isCompleted && { textDecorationLine: 'line-through', color: theme.colors.onSurfaceDisabled }
-                ]}
-              >
-                {item.name}
+        {Object.entries(groupedItems).map(([category, categoryItems]) => (
+          <View key={category}>
+            <View style={styles.categoryHeader}>
+              <Text style={[styles.categoryTitle, { color: theme.colors.primary }]}>
+                {category}
               </Text>
-            }
-            description={`${item.quantity}${item.weight ? `, ${item.weight}kg` : ''}${item.category ? `, ${item.category}` : ''}`}
-            left={() => (
-              <View style={styles.checkboxContainer}>
-                <View style={styles.checkboxWrapper}>
-                  <Checkbox
-                    status={item.isCompleted ? 'checked' : 'unchecked'}
-                    onPress={() => handleToggleCompleted(item)}
-                    color={theme.colors.primary}
-                    uncheckedColor={theme.colors.primary}
+            </View>
+            {categoryItems.map((item) => (
+              <List.Item
+                key={item.id}
+                title={
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Text
+                      style={[
+                        styles.itemName,
+                        item.isCompleted && { textDecorationLine: 'line-through', color: theme.colors.onSurfaceDisabled }
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {item.name}
+                    </Text>
+                  </View>
+                }
+                description={
+                  <Text style={styles.itemDescription} numberOfLines={1}>
+                    {item.weight ? `${item.weight} kg` : `${item.quantity} szt.`}
+                  </Text>
+                }
+                left={() => (
+                  <View style={styles.checkboxContainer}>
+                    <View style={[styles.checkboxBg, { transform: [{ scale: 0.85 }] }]}>
+                      <Checkbox
+                        status={item.isCompleted ? 'checked' : 'unchecked'}
+                        onPress={() => handleToggleCompleted(item)}
+                        color={theme.colors.primary}
+                        uncheckedColor={theme.colors.outline}
+                      />
+                    </View>
+                  </View>
+                )}
+                right={() => (
+                  <IconButton
+                    icon="delete-outline"
+                    iconColor={theme.colors.error}
+                    onPress={() => handleDeleteItem(item.id!)}
                   />
-                </View>
-              </View>
-            )}
-            right={() => (
-              <IconButton
-                icon="delete-outline"
-                iconColor={theme.colors.error}
-                onPress={() => handleDeleteItem(item.id!)}
+                )}
+                style={[
+                  styles.listItem,
+                  item.isCompleted && styles.completedItem
+                ]}
+                onPress={() => router.push(`/list/${listId}/edit/${item.id}`)}
               />
-            )}
-            style={[
-              styles.listItem,
-              item.isCompleted && styles.completedItem
-            ]}
-            onPress={() => router.push(`/list/${listId}/edit/${item.id}`)}
-          />
+            ))}
+          </View>
         ))}
       </ScrollView>
       <View style={styles.addButtonsRow}>
@@ -138,6 +162,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
+  categoryHeader: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: '#f0f0f0',
+  },
+  categoryTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   listItem: {
     backgroundColor: 'white',
     borderRadius: 8,
@@ -145,25 +178,34 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginTop: 8,
     elevation: 1,
-    paddingVertical: 4,
+    paddingVertical: 12,
+    height: 88,
   },
   itemName: {
     fontSize: 16,
     fontWeight: '500',
   },
+  itemDescription: {
+    fontSize: 15,
+    color: '#666',
+    marginTop: 2,
+    lineHeight: 20,
+  },
   checkboxContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    paddingLeft: 8,
-    minWidth: 32,
+    paddingLeft: 16,
+    minWidth: 40,
     height: '100%',
   },
-  checkboxWrapper: {
+  checkboxBg: {
+    backgroundColor: '#f0f0f0',
+    borderRadius: 6,
     borderWidth: 1.5,
     borderColor: '#6200ee',
-    borderRadius: 3,
-    margin: 1,
-    transform: [{ scale: 0.8 }],
+    padding: 0.5,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   completedItem: {
     backgroundColor: '#f0f0f0',
