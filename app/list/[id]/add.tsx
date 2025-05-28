@@ -127,11 +127,16 @@ function AddProductContent() {
           onChangeText={setName}
           mode="outlined"
           style={styles.input}
+          onSubmitEditing={() => Keyboard.dismiss()}
+          returnKeyType="next"
         />
         <View style={styles.measurementToggle}>
           <Button
             mode={!isWeightMode ? "contained" : "outlined"}
-            onPress={() => setIsWeightMode(false)}
+            onPress={() => {
+              setIsWeightMode(false);
+              Keyboard.dismiss();
+            }}
             style={styles.toggleButton}
             buttonColor={!isWeightMode ? theme.colors.primary : undefined}
             textColor={!isWeightMode ? theme.colors.onPrimary : theme.colors.primary}
@@ -140,7 +145,10 @@ function AddProductContent() {
           </Button>
           <Button
             mode={isWeightMode ? "contained" : "outlined"}
-            onPress={() => setIsWeightMode(true)}
+            onPress={() => {
+              setIsWeightMode(true);
+              Keyboard.dismiss();
+            }}
             style={styles.toggleButton}
             buttonColor={isWeightMode ? theme.colors.primary : undefined}
             textColor={isWeightMode ? theme.colors.onPrimary : theme.colors.primary}
@@ -156,6 +164,8 @@ function AddProductContent() {
             mode="outlined"
             keyboardType="numeric"
             style={styles.input}
+            onSubmitEditing={() => Keyboard.dismiss()}
+            returnKeyType="next"
           />
         ) : (
           <TextInput
@@ -165,6 +175,8 @@ function AddProductContent() {
             mode="outlined"
             keyboardType="numeric"
             style={styles.input}
+            onSubmitEditing={() => Keyboard.dismiss()}
+            returnKeyType="next"
           />
         )}
         {/* Kategoria */}
@@ -200,6 +212,7 @@ function AddProductContent() {
                   onPress={() => {
                     setCategory(cat);
                     setCategoryModalVisible(false);
+                    Keyboard.dismiss();
                   }}
                 />
               ))}
@@ -214,12 +227,17 @@ function AddProductContent() {
           keyboardType="numeric"
           style={styles.input}
           editable={!searchParams?.barcode}
+          onSubmitEditing={() => Keyboard.dismiss()}
+          returnKeyType="done"
         />
       </ScrollView>
       <View style={styles.formButtonsRow}>
         <Button
           mode="contained"
-          onPress={handleSubmit}
+          onPress={() => {
+            Keyboard.dismiss();
+            handleSubmit();
+          }}
           style={styles.submitButton}
           buttonColor={theme.colors.primary}
           textColor={theme.colors.onPrimary}

@@ -2,7 +2,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import React, { useCallback, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Linking, ScrollView, StyleSheet, View } from 'react-native';
 import { Appbar, Button, Checkbox, IconButton, List, Text, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { deleteShoppingItemFromList, getShoppingItemsForList, ShoppingItem, updateShoppingItemStatus } from '../../lib/db/database';
@@ -59,6 +59,48 @@ export default function ShoppingListProductsScreen() {
     );
   };
 
+  const handleShareList = async () => {
+    try {
+      // Format items by category
+      const groupedItems = items.reduce((acc, item) => {
+        const category = item.category || 'Bez kategorii';
+        if (!acc[category]) {
+          acc[category] = [];
+        }
+        acc[category].push(item);
+        return acc;
+      }, {} as Record<string, ShoppingItem[]>);
+
+      // Create message text
+      let messageText = 'Lista zakupów:\n\n';
+      
+      Object.entries(groupedItems).forEach(([category, categoryItems]) => {
+        messageText += `${category}:\n`;
+        categoryItems.forEach(item => {
+          const quantity = item.weight ? `${item.weight} kg` : `${item.quantity} szt.`;
+          messageText += `- ${item.name} (${quantity})\n`;
+        });
+        messageText += '\n';
+      });
+
+      // URL encode the message
+      const encodedMessage = encodeURIComponent(messageText);
+      
+      // Open SMS app with pre-filled message
+      const url = `sms:?body=${encodedMessage}`;
+      const canOpen = await Linking.canOpenURL(url);
+      
+      if (canOpen) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert('Błąd', 'Nie można otworzyć aplikacji SMS');
+      }
+    } catch (error) {
+      console.error('Error sharing list:', error);
+      Alert.alert('Błąd', 'Nie udało się udostępnić listy');
+    }
+  };
+
   // Group items by category
   const groupedItems = items.reduce((acc, item) => {
     const category = item.category || 'Bez kategorii';
@@ -74,6 +116,7 @@ export default function ShoppingListProductsScreen() {
       <Appbar.Header elevated style={{ backgroundColor: theme.colors.background }}>
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title="Produkty na liście" />
+        <Appbar.Action icon="share-variant" onPress={handleShareList} />
       </Appbar.Header>
       <ScrollView style={styles.container}>
         {Object.entries(groupedItems).map(([category, categoryItems]) => (
