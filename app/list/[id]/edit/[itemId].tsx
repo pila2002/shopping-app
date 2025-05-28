@@ -164,6 +164,7 @@ function EditProductContent() {
 const styles = StyleSheet.create({
   formContainer: {
     flex: 1,
+    backgroundColor: '#0f172a',
   },
   formScroll: {
     padding: 16,
@@ -172,10 +173,11 @@ const styles = StyleSheet.create({
   formButtonsRow: {
     paddingHorizontal: 16,
     paddingBottom: 24,
-    backgroundColor: 'white',
+    backgroundColor: '#1e293b',
   },
   input: {
-    backgroundColor: 'white',
+    backgroundColor: '#1e293b',
+    borderColor: '#334155',
   },
   submitButton: {
     borderRadius: 8,

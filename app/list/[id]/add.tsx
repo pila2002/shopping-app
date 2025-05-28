@@ -231,20 +231,23 @@ function AddProductContent() {
           returnKeyType="done"
         />
       </ScrollView>
-      <View style={styles.formButtonsRow}>
-        <Button
-          mode="contained"
-          onPress={() => {
-            Keyboard.dismiss();
-            handleSubmit();
-          }}
-          style={styles.submitButton}
-          buttonColor={theme.colors.primary}
-          textColor={theme.colors.onPrimary}
-        >
-          Dodaj produkt
-        </Button>
-      </View>
+      <SafeAreaView edges={['bottom']} style={{ backgroundColor: '#1e293b' }}>
+        <View style={styles.formButtonsRow}>
+          <Button
+            mode="contained"
+            onPress={() => {
+              Keyboard.dismiss();
+              handleSubmit();
+            }}
+            style={styles.submitButton}
+            buttonColor={theme.colors.primary}
+            textColor={theme.colors.onPrimary}
+            contentStyle={{ height: 48, justifyContent: 'center' }}
+          >
+            Dodaj produkt
+          </Button>
+        </View>
+      </SafeAreaView>
     </SafeAreaView>
   );
 }
@@ -252,21 +255,26 @@ function AddProductContent() {
 const styles = StyleSheet.create({
   formContainer: {
     flex: 1,
+    backgroundColor: '#0f172a',
   },
   formScroll: {
     padding: 16,
     gap: 16,
+    paddingBottom: 80,
   },
   formButtonsRow: {
     paddingHorizontal: 16,
-    paddingBottom: 24,
-    backgroundColor: 'white',
+    paddingVertical: 16,
+    backgroundColor: '#1e293b',
+    borderTopWidth: 1,
+    borderTopColor: '#334155',
   },
   input: {
-    backgroundColor: 'white',
+    backgroundColor: '#1e293b',
+    borderColor: '#334155',
   },
   requiredInput: {
-    borderColor: '#6200ee',
+    borderColor: '#3b82f6',
     borderWidth: 2,
   },
   measurementToggle: {

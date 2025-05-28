@@ -1,16 +1,35 @@
 import { Stack } from 'expo-router';
 import { SQLiteProvider } from 'expo-sqlite';
-import { MD3LightTheme, PaperProvider } from 'react-native-paper';
+import { MD3DarkTheme, PaperProvider } from 'react-native-paper';
 import { BarcodeScanProvider } from './components/BarcodeScanContext';
 import DatabaseInitializer from './components/DatabaseInitializer';
 
 export default function Layout() {
     const theme = {
-      ...MD3LightTheme,
+      ...MD3DarkTheme,
       colors: {
-        ...MD3LightTheme.colors,
-        primary: '#6200ee',
-        secondary: '#03dac6',
+        ...MD3DarkTheme.colors,
+        primary: '#3b82f6', // Jasny niebieski
+        secondary: '#10b981', // Zielony akcent
+        tertiary: '#f59e0b', // Pomarańczowy akcent
+        background: '#0f172a', // Ciemne tło
+        surface: '#1e293b', // Ciemna powierzchnia
+        surfaceVariant: '#334155', // Ciemniejszy wariant powierzchni
+        error: '#ef4444', // Czerwony dla błędów
+        onPrimary: '#ffffff', // Biały tekst na kolorze primary
+        onSecondary: '#ffffff', // Biały tekst na kolorze secondary
+        onBackground: '#f8fafc', // Jasny tekst na tle
+        onSurface: '#f8fafc', // Jasny tekst na powierzchni
+        onSurfaceVariant: '#cbd5e1', // Jasnoszary tekst na wariantach
+        outline: '#475569', // Ciemnoszara obwódka
+        elevation: {
+          level0: 'transparent',
+          level1: '#1e293b',
+          level2: '#334155',
+          level3: '#475569',
+          level4: '#64748b',
+          level5: '#94a3b8',
+        },
       },
     };
     return (

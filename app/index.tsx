@@ -66,41 +66,45 @@ export default function ShoppingListsScreen() {
   );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }} edges={['top', 'left', 'right']}>
-      <Appbar.Header elevated style={{ backgroundColor: theme.colors.background }}>
-        <Appbar.Content title="Listy zakupów" titleStyle={{ fontWeight: 'bold' }} />
-      </Appbar.Header>
-      <FlatList
-        data={lists}
-        renderItem={renderItem}
-        keyExtractor={item => item.id?.toString() ?? ''}
-        contentContainerStyle={styles.listContent}
-        ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 32, color: theme.colors.onBackground }}>Brak list zakupów</Text>}
-      />
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }} edges={['top', 'left', 'right', 'bottom']}>
       <KeyboardAvoidingView
+        style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
       >
-        <View style={[styles.addRow, { backgroundColor: theme.colors.background }]}> 
-          <TextInput
-            label="Nowa lista zakupów"
-            value={newListName}
-            onChangeText={setNewListName}
-            mode="outlined"
-            style={styles.inputRow}
-            onSubmitEditing={handleAddList}
-            returnKeyType="done"
-          />
-          <Button
-            mode="contained"
-            onPress={handleAddList}
-            buttonColor={theme.colors.primary}
-            textColor={theme.colors.onPrimary}
-            style={styles.addButtonRow}
-          >
-            Dodaj
-          </Button>
-        </View>
+        <Appbar.Header elevated style={{ backgroundColor: theme.colors.background }}>
+          <Appbar.Content title="Listy zakupów" titleStyle={{ fontWeight: 'bold' }} />
+        </Appbar.Header>
+        <FlatList
+          data={lists}
+          renderItem={renderItem}
+          keyExtractor={item => item.id?.toString() ?? ''}
+          contentContainerStyle={styles.listContent}
+          ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 32, color: theme.colors.onBackground }}>Brak list zakupów</Text>}
+        />
+        <SafeAreaView edges={['bottom']} style={{ backgroundColor: '#1e293b' }}>
+          <View style={styles.addRow}>
+            <TextInput
+              label="Nowa lista zakupów"
+              value={newListName}
+              onChangeText={setNewListName}
+              mode="outlined"
+              style={styles.inputRow}
+              onSubmitEditing={handleAddList}
+              returnKeyType="done"
+            />
+            <Button
+              mode="contained"
+              onPress={handleAddList}
+              buttonColor={theme.colors.primary}
+              textColor={theme.colors.onPrimary}
+              style={styles.addButtonRow}
+              contentStyle={{ height: 40, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 8 }}
+            >
+              Dodaj
+            </Button>
+          </View>
+        </SafeAreaView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -108,34 +112,42 @@ export default function ShoppingListsScreen() {
 
 const styles = StyleSheet.create({
   listContent: {
-    padding: 8,
-    paddingBottom: 32,
+    padding: 16,
+    paddingBottom: 80,
   },
   listItem: {
-    backgroundColor: 'white',
-    borderRadius: 8,
+    backgroundColor: '#1e293b',
+    borderRadius: 12,
     marginBottom: 8,
-    elevation: 1,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   listName: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: 18,
   },
   addRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
+    padding: 8,
+    gap: 8,
+    backgroundColor: '#1e293b',
     borderTopWidth: 1,
-    borderColor: '#eee',
-    marginBottom: 24,
+    borderTopColor: '#334155',
   },
   inputRow: {
     flex: 1,
-    marginRight: 8,
-    backgroundColor: 'white',
+    backgroundColor: '#1e293b',
+    borderColor: '#334155',
+    height: 40,
+    fontSize: 16,
   },
   addButtonRow: {
     borderRadius: 8,
-    paddingVertical: 4,
+    height: 40,
+    minWidth: 80,
+    alignSelf: 'center',
+    marginLeft: 0,
   },
 }); 
