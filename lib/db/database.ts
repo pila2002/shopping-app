@@ -52,15 +52,15 @@ export const addShoppingList = async (
   db: ReturnType<typeof useSQLiteContext>,
   name: string
 ): Promise<ShoppingList> => {
+  const isoDate = new Date().toISOString();
   const result = await db.runAsync(
-    'INSERT INTO shopping_lists (name) VALUES (?)',
-    [name]
+    'INSERT INTO shopping_lists (name, created_at) VALUES (?, ?)',
+    [name, isoDate]
   );
-
   return {
     id: result.lastInsertRowId,
     name,
-    createdAt: new Date().toLocaleString('pl-PL', { hour12: false, timeZone: 'Europe/Warsaw' })
+    createdAt: isoDate
   };
 };
 

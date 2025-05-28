@@ -1,6 +1,6 @@
 import { Link, useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { Alert, FlatList, KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 import { Appbar, Button, IconButton, List, Text, TextInput, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,6 +11,7 @@ export default function ShoppingListsScreen() {
   const theme = useTheme();
   const [lists, setLists] = useState<ShoppingList[]>([]);
   const [newListName, setNewListName] = useState('');
+  const flatListRef = useRef<FlatList<any>>(null);
 
   const loadLists = async () => {
     const data = await getShoppingLists(db);
@@ -28,6 +29,9 @@ export default function ShoppingListsScreen() {
     await addShoppingList(db, newListName.trim());
     setNewListName('');
     loadLists();
+    setTimeout(() => {
+      flatListRef.current?.scrollToOffset({ offset: 0, animated: false });
+    }, 100);
   };
 
   const handleDeleteList = (id: number) => {
@@ -52,7 +56,7 @@ export default function ShoppingListsScreen() {
     <Link href={{ pathname: '/list/[id]', params: { id: item.id?.toString() ?? '' } }} asChild>
     <List.Item
         title={<Text style={[styles.listName, { color: theme.colors.primary, fontSize: 20, fontWeight: 'bold' }]}>{item.name}</Text>}
-        description={item.createdAt && `Utworzono: ${item.createdAt}`}
+        description={item.createdAt && `Utworzono: ${new Date(item.createdAt).toLocaleString('pl-PL', { hour12: false, timeZone: 'Europe/Warsaw' })}`}
       right={props => (
         <IconButton
           icon="delete-outline"
@@ -76,11 +80,14 @@ export default function ShoppingListsScreen() {
           <Appbar.Content title="Listy zakupów" titleStyle={{ fontWeight: 'bold' }} />
         </Appbar.Header>
         <FlatList
+          ref={flatListRef}
           data={lists}
           renderItem={renderItem}
           keyExtractor={item => item.id?.toString() ?? ''}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={[styles.listContent, { paddingBottom: 72 }]}
           ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 32, color: theme.colors.onBackground }}>Brak list zakupów</Text>}
+          style={{ flex: 1 }}
+          keyboardShouldPersistTaps="always"
         />
         <SafeAreaView edges={['bottom']} style={{ backgroundColor: '#1e293b' }}>
           <View style={styles.addRow}>
@@ -113,7 +120,6 @@ export default function ShoppingListsScreen() {
 const styles = StyleSheet.create({
   listContent: {
     padding: 16,
-    paddingBottom: 80,
   },
   listItem: {
     backgroundColor: '#1e293b',
